@@ -11,10 +11,12 @@
                     <v-col sm="10" md="8" lg="6">
                         <template v-if="fields[fieldTypes.String]">
                             <div v-for="field of fields[fieldTypes.String]" :key="field.key">
-                                <v-text-field
+                                <v-textarea
                                         v-if="!field.multi"
                                         v-model="item[field.key]"
                                         :placeholder="_.startCase(field.key)"
+                                        :auto-grow="true"
+                                        rows="1"
                                         :outlined="true"
                                         :rules="requiredField(field.required, field.key)"
                                         :required="field.required"

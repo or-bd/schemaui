@@ -23,7 +23,7 @@
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title class="grey--text">
-                {{ collection.name }}
+                {{ _.startCase(collection.name) }}
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -47,13 +47,11 @@
 
 <script>
 import { http } from './mixins/http';
+import _ from 'lodash';
 
 export default {
   name: 'App',
 
-  components: {
-    // HelloWorld,
-  },
   mixins: [
     http
   ],
@@ -64,6 +62,9 @@ export default {
   },
 
   computed: {
+    _ () {
+      return _;
+    },
     hasCollections () {
       return Boolean(Object.keys(this.collections).length);
     }

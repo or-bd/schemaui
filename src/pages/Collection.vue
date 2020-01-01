@@ -52,6 +52,21 @@
         <v-dialog ref="dateModal" v-if="model && newDocumentModal" v-model="newDocumentModal" width="70%">
             <document-edit class="popup-hosting" :allowed-fields="model.fields" :new-item="true" @documentUpdate="onDocumentUpdate" />
         </v-dialog>
+        <v-dialog v-model="errorPopup.open" width="290px">
+            <v-card>
+                <v-card-title class="red--text text--darken-4">
+                    <v-icon color="#B71C1C" style="margin-right: 5px;">mdi-alert-circle-outline</v-icon>
+                    Oops...
+                </v-card-title>
+                <v-card-text>
+                    {{ errorPopup.message }}
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn text color="primary" type="button" @click="errorPopup.open = false">Got it</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
@@ -66,6 +81,9 @@
             model: null,
             options: {},
             loading: true,
+            errorPopup: {
+                open: false
+            },
             expanded: [],
             toast: { open: false },
             newDocumentModal: false,
@@ -95,6 +113,7 @@
         },
         methods: {
             init () {
+                this.search = '';
                 this.model = this.$router.collections[this.$route.params.collection];
             },
             searchDebounce () {
@@ -106,19 +125,25 @@
             },
             async fetchResults () {
                 this.loading = true;
-                const { sortBy, sortDesc, page, itemsPerPage } = this.options;
-                const payload = { search: this.search, itemsPerPage, page };
 
-                if (sortBy.length) {
-                    payload.sort = { [sortBy[0]]: (sortDesc.length && true === sortDesc[0] ? -1 : 1) }
+                try {
+                    const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+                    const payload = { search: this.search, itemsPerPage, page };
+
+                    if (sortBy.length) {
+                        payload.sort = { [sortBy[0]]: (sortDesc.length && true === sortDesc[0] ? -1 : 1) }
+                    }
+
+                    const { items, fields, totalItems } = (await this.post('collections/' + this.$route.params.collection, payload));
+                    this.totalItems = totalItems;
+                    this.items = items;
+                    this.headers = fields.map(field => {
+                        return { value: field, text: field };
+                    });
+                } catch (error) {
+                    this.errorPopup.message = error.message;
+                    this.errorPopup.open = true;
                 }
-
-                const { items, fields, totalItems } = (await this.post('collections/' + this.$route.params.collection, payload));
-                this.totalItems = totalItems;
-                this.items = items;
-                this.headers = fields.map(field => {
-                    return { value: field, text: field };
-                });
 
                 this.loading = false;
             },
