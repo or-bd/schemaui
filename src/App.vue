@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app clipped-left color="white">
+    <v-app-bar app clipped-left color="orange">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <span class="title ml-3 mr-5">
         INAFF&nbsp;<span class="font-weight-light">Dashboard</span>
@@ -46,7 +46,6 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld';
 import { http } from './mixins/http';
 
 export default {

@@ -177,7 +177,6 @@
 </template>
 
 <script>
-    /* eslint-disable */
     import { FieldTypes } from './../../lib/enums';
     import { http } from '../mixins/http';
     import _ from 'lodash';

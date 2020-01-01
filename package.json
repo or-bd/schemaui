@@ -1,8 +1,17 @@
 {
   "name": "inaff",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "license": "MIT",
-  "keywords": ["nodejs", "mongoose", "mongodb", "dashboard", "ui", "admin", "panel", "administration"],
+  "keywords": [
+    "nodejs",
+    "mongoose",
+    "mongodb",
+    "dashboard",
+    "ui",
+    "admin",
+    "panel",
+    "administration"
+  ],
   "homepage": "https://github.com/molaga/inaff",
   "bugs": "https://github.com/molaga/inaff/issues",
   "author": {

@@ -76,9 +76,13 @@
             searchTimeut: 0,
         }),
         async mounted () {
-            this.model = this.$router.collections[this.$route.params.collection];
+            this.init();
         },
         watch: {
+            $route () {
+                this.init();
+                this.fetchResults();
+            },
             search () {
                 return this.searchDebounce();
             },
@@ -90,6 +94,9 @@
             }
         },
         methods: {
+            init () {
+                this.model = this.$router.collections[this.$route.params.collection];
+            },
             searchDebounce () {
                 clearTimeout(this.searchTimeut);
 
