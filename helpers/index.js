@@ -4,7 +4,7 @@ const Api = require('../routes/api');
 const Errors = require('../lib/errors');
 const MongooseAdapter = require('../adapters/mongoose');
 
-class Inaff {
+class SchemaUI {
     middleware () {
         this.initRoutes();
 
@@ -52,4 +52,4 @@ class Inaff {
     }
 }
 
-module.exports = Inaff;
+module.exports = SchemaUI;

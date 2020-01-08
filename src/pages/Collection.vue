@@ -72,6 +72,9 @@
 
 <script>
     import { http } from '../mixins/http';
+    import { FieldTypes, formats } from '../../lib/enums';
+    import moment from "moment";
+    import _ from 'lodash';
 
     export default {
         mixins: [
@@ -136,7 +139,17 @@
 
                     const { items, fields, totalItems } = (await this.post('collections/' + this.$route.params.collection, payload));
                     this.totalItems = totalItems;
-                    this.items = items;
+                    this.items = items.map(item => {
+                        fields.map(field => {
+                            if (FieldTypes.Date === this.model.fields[field].type && _.get(item, field)) {
+                                const val = _.get(item, field);
+
+                                _.set(item, field, moment(val).format(formats.uiDate));
+                            }
+                        });
+
+                        return item;
+                    });
                     this.headers = fields.map(field => {
                         return { value: field, text: field };
                     });

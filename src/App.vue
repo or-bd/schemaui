@@ -1,15 +1,15 @@
 <template>
   <v-app>
-    <v-app-bar app clipped-left color="orange">
+    <v-app-bar app clipped-left color="orange" v-if="!headless">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <span class="title ml-3 mr-5">
-        INAFF&nbsp;<span class="font-weight-light">Dashboard</span>
+        Schema UI&nbsp;<span class="font-weight-light">Dashboard</span>
       </span>
 
       <v-spacer />
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" app clipped color="grey lighten-4">
+    <v-navigation-drawer v-model="drawer" app clipped color="grey lighten-4" v-if="!headless">
       <v-list rounded class="grey lighten-4">
         <v-subheader>COLLECTIONS</v-subheader>
         <v-list-item-group active-class="active">
@@ -59,6 +59,7 @@ export default {
   async mounted () {
     this.collections = await this.get('collections');
     this.$router.collections = this.collections;
+    this.headless = ('true' === this.$route.query.headless);
   },
 
   computed: {
@@ -73,6 +74,7 @@ export default {
   data: () => ({
     loaded: false,
     drawer: true,
+    headless: true,
     selectedCollection: 'Glossary',
     collections: {}
   }),

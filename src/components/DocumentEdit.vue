@@ -14,22 +14,22 @@
                                 <v-textarea
                                         v-if="!field.multi"
                                         v-model="item[field.key]"
-                                        :placeholder="_.startCase(field.key)"
+                                        :placeholder="getFieldName(field.key)"
                                         :auto-grow="true"
                                         rows="1"
                                         :outlined="true"
                                         :rules="requiredField(field.required, field.key)"
                                         :required="field.required"
-                                        :label="_.startCase(field.key)"
+                                        :label="getFieldName(field.key)"
                                 />
                                 <v-combobox
                                         v-if="field.multi"
                                         v-model="item[field.key]"
-                                        :placeholder="_.startCase(field.key)"
+                                        :placeholder="getFieldName(field.key)"
                                         :outlined="true"
                                         :rules="requiredFieldArray(field.required, field.key)"
                                         :required="field.required"
-                                        :label="_.startCase(field.key)"
+                                        :label="getFieldName(field.key)"
                                         multiple
                                         chips
                                 />
@@ -40,21 +40,21 @@
                                 <v-text-field
                                         v-if="!field.multi"
                                         v-model="item[field.key]"
-                                        :placeholder="_.startCase(field.key)"
+                                        :placeholder="getFieldName(field.key)"
                                         :outlined="true"
                                         :rules="requiredFieldArray(field.required, field.key)"
                                         :required="field.required"
-                                        :label="_.startCase(field.key)"
+                                        :label="getFieldName(field.key)"
                                         type="number"
                                 />
                                 <v-combobox
                                         v-if="field.multi"
                                         v-model="item[field.key]"
-                                        :placeholder="_.startCase(field.key)"
+                                        :placeholder="getFieldName(field.key)"
                                         :outlined="true"
                                         :rules="requiredObjectIdArray(field.required, field.key)"
                                         :required="field.required"
-                                        :label="_.startCase(field.key)"
+                                        :label="getFieldName(field.key)"
                                         multiple
                                         chips
                                 />
@@ -65,20 +65,20 @@
                                 <v-text-field
                                         v-if="'_id' !== field.key && !field.multi"
                                         v-model="item[field.key]"
-                                        :placeholder="_.startCase(field.key)"
+                                        :placeholder="getFieldName(field.key)"
                                         :outlined="true"
                                         :rules="requiredObjectId(field.required, field.key)"
                                         :required="field.required"
-                                        :label="_.startCase(field.key)"
+                                        :label="getFieldName(field.key)"
                                 />
                                 <v-combobox
                                         v-if="'_id' !== field.key && field.multi"
                                         v-model="item[field.key]"
-                                        :placeholder="_.startCase(field.key)"
+                                        :placeholder="getFieldName(field.key)"
                                         :outlined="true"
                                         :rules="requiredObjectIdArray(field.required, field.key)"
                                         :required="field.required"
-                                        :label="_.startCase(field.key)"
+                                        :label="getFieldName(field.key)"
                                         multiple
                                         chips
                                 />
@@ -92,7 +92,7 @@
                                     :outlined="true"
                                     :rules="requiredField(field.required, field.key)"
                                     :required="field.required"
-                                    :label="_.startCase(field.key)"
+                                    :label="getFieldName(field.key)"
                                     @click="openDateModal(field.key, index)"
                                     @focus="openDateModal(field.key, index)"
                                     prepend-icon="mdi-calendar"
@@ -120,11 +120,11 @@
                                     v-for="field of fields[fieldTypes.Boolean]"
                                     v-model="item[field.key]"
                                     :key="field.key"
-                                    :placeholder="_.startCase(field.key)"
+                                    :placeholder="getFieldName(field.key)"
                                     :outlined="true"
                                     :rules="requiredBoolean(field.required, field.key)"
                                     :required="field.required"
-                                    :label="_.startCase(field.key)"
+                                    :label="getFieldName(field.key)"
                             />
                         </template>
                     </v-col>
@@ -267,28 +267,41 @@
                 return [];
             },
             parseModelFromDb (item) {
+                const parsedItem = {};
                 const fieldKeys = Object.keys(this.allowedFields);
 
                 for (const key of fieldKeys) {
-                    const field = this.allowedFields[key];
-                    if (FieldTypes.Date === field.type && item[key] && item[key].length) {
-                        item[key] = moment(item[key]).format(formats.uiDate);
+                    if (_.has(item, key)) {
+                        const val = _.get(item, key);
+                        const field = _.get(this.allowedFields, key);
+
+                        if (FieldTypes.Date === field.type && val && val.length) {
+                            parsedItem[key] = moment(val).format(formats.uiDate);
+                        } else {
+                            parsedItem[key] = val;
+                        }
                     }
                 }
 
-                return item;
+                return parsedItem;
             },
             formatModelToDb (item) {
+                const formattedItem = {};
                 const fieldKeys = Object.keys(this.allowedFields);
 
                 for (const key of fieldKeys) {
-                    const field = this.allowedFields[key];
-                    if (FieldTypes.Date === field.type && item[key] && item[key].length) {
-                        item[key] = moment(item[key], formats.uiDate).toISOString();
+                    if (item.hasOwnProperty(key)) {
+                        const field = _.get(this.allowedFields, key);
+
+                        if (FieldTypes.Date === field.type && item[key] && item[key].length) {
+                            _.set(formattedItem, key, moment(item[key], formats.uiDate).toISOString());
+                        } else {
+                            _.set(formattedItem, key, item[key]);
+                        }
                     }
                 }
 
-                return item;
+                return formattedItem;
             },
             async init () {
                 if (this.newItem) {
@@ -368,6 +381,9 @@
                 }
                 this.loading = false;
 
+            },
+            getFieldName (fieldKey = '') {
+                return fieldKey.split('.').map(val => _.startCase(val)).join(' > ');
             }
         },
         watch: {

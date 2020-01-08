@@ -1,19 +1,21 @@
 {
-  "name": "inaff",
-  "version": "0.8.2",
+  "name": "schemaui",
+  "version": "0.1.0",
   "license": "MIT",
   "keywords": [
     "nodejs",
     "mongoose",
     "mongodb",
+    "schema",
     "dashboard",
     "ui",
+    "crm",
     "admin",
     "panel",
     "administration"
   ],
-  "homepage": "https://github.com/molaga/inaff",
-  "bugs": "https://github.com/molaga/inaff/issues",
+  "homepage": "https://github.com/molaga/schemaui",
+  "bugs": "https://github.com/molaga/schemaui/issues",
   "author": {
     "email": "bar@molaga.com",
     "name": "Bar Molaga",

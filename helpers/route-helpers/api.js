@@ -1,11 +1,13 @@
-const Inaff = require('../../index');
+const SchemaUI = require('../../index');
 const BaseRoute = require('./base');
 const escapeRegex = require('escape-string-regexp');
 const Errors = require('../../lib/errors');
+const _ = require('lodash');
+const FieldTypes = require('../../lib/enums').FieldTypes;
 
 class Api extends BaseRoute {
     async getCollections () {
-        return Inaff.Inaff.routesMap;
+        return SchemaUI.SchemaUI.routesMap;
     }
 
     async getCollectionDocuments (request) {
@@ -17,8 +19,8 @@ class Api extends BaseRoute {
             sort
         } = request.body;
 
-        const model = Inaff.Inaff.getModel(collectionName);
-        const parsedModel = Inaff.Inaff.routesMap[collectionName];
+        const model = SchemaUI.SchemaUI.getModel(collectionName);
+        const parsedModel = SchemaUI.SchemaUI.routesMap[collectionName];
         const fieldObj = parsedModel.fields;
         let fields = Object.keys(fieldObj);
         let match = {};
@@ -34,7 +36,7 @@ class Api extends BaseRoute {
             let newFields = [];
 
             for (const field of listFields) {
-                if (fieldObj.hasOwnProperty(field)) {
+                if (fieldObj.hasOwnProperty(field) && FieldTypes.String === fieldObj[field].type) {
                     projection[field] = 1;
                     newFields.push(field);
                 }
@@ -56,6 +58,10 @@ class Api extends BaseRoute {
                 const regex = new RegExp(escapeRegex(search), 'i');
 
                 for (const field of fields) {
+                    if (FieldTypes.String !== fieldObj[field].type) {
+                        continue;
+                    }
+
                     if (true === fieldObj[field].multi) {
                         orMatch.push({ [field]: { $in: regex } })
                     } else {
@@ -63,7 +69,9 @@ class Api extends BaseRoute {
                     }
                 }
 
-                match = { $or: orMatch };
+                if (orMatch.length) {
+                    match = { $or: orMatch };
+                }
             }
             query.unshift({ $match: match });
         }
@@ -77,15 +85,15 @@ class Api extends BaseRoute {
 
     removeCollectionDocument (request) {
         const { collectionName, documentId } = request.params;
-        const model = Inaff.Inaff.getModel(collectionName);
+        const model = SchemaUI.SchemaUI.getModel(collectionName);
 
         return model.findByIdAndDelete(model.base.Types.ObjectId(documentId));
     }
 
     async saveCollectionDocument (request) {
         const collectionName = request.params.collection;
-        const model = Inaff.Inaff.getModel(collectionName);
-        const parsedModel = Inaff.Inaff.routesMap[collectionName];
+        const model = SchemaUI.SchemaUI.getModel(collectionName);
+        const parsedModel = SchemaUI.SchemaUI.routesMap[collectionName];
         const fields = Object.keys(parsedModel.fields);
         const newItem = request.body;
         let itemToSave = new model({});
@@ -99,8 +107,10 @@ class Api extends BaseRoute {
         }
 
         for (const field of fields) {
-            if (newItem.hasOwnProperty(field)) {
-                itemToSave[field] = newItem[field];
+            if (_.has(newItem, field)) {
+                const val = _.get(newItem, field);
+
+                _.set(itemToSave, field, val);
             }
         }
 
@@ -109,7 +119,7 @@ class Api extends BaseRoute {
 
     async getCollectionDocument (request) {
         const { collectionName, id } = request.params;
-        const model = Inaff.Inaff.getModel(collectionName);
+        const model = SchemaUI.SchemaUI.getModel(collectionName);
 
         return model.findById(model.base.Types.ObjectId(id));
     }

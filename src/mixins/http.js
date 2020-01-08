@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:1338/inaff/api/';
+const BASE_URL = '/schemaui/api/';
 
 function handleResponse (res) {
     if (true === res.success) {

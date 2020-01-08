@@ -6,9 +6,8 @@ Vue.use(VueRouter);
 
 export default new VueRouter({
     mode: 'history',
-    base: 'inaff',
+    base: 'schemaui',
     routes: [
         { path: '/collection/:collection', component: Collection },
-        { path: '/test', component: Collection }
     ]
 });

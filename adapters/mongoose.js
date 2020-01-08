@@ -1,5 +1,6 @@
 const Enum = require('../lib/enums');
 const fieldTypes = Object.keys(Enum.FieldTypes);
+const _ = require('lodash');
 
 class MongooseAdapter {
     constructor () {
@@ -14,8 +15,7 @@ class MongooseAdapter {
         }
     }
 
-    treeToFields (tree = {}) {
-        const fields = {};
+    treeToFields (tree = {}, fields = {}, nestedFields = []) {
         const keys = Object.keys(tree);
 
         for (const key of keys) {
@@ -38,9 +38,16 @@ class MongooseAdapter {
 
             const fieldType = this.getFieldType(field);
 
-            if (fieldType) {
-                fields[key] = {
-                    key,
+            if (false === multi && Enum.FieldTypes.Object === typeof field) {
+                const nested = _.clone(nestedFields);
+                nested.push(key);
+                this.treeToFields(field, fields, nested);
+
+            } else if (fieldType) {
+                const targetKey = nestedFields.length ? [...nestedFields, key].join('.') : key;
+
+                fields[targetKey] = {
+                    key: targetKey,
                     multi,
                     type: fieldType,
                     required: tree[key].required || false

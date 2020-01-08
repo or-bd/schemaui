@@ -1,4 +1,4 @@
-const Inaff = require('./helpers');
-const inaff = new Inaff();
-module.exports = inaff;
-exports.Inaff = inaff;
+const SchemaUI = require('./helpers');
+const schemaUi = new SchemaUI();
+module.exports = schemaUi;
+exports.SchemaUI = schemaUi;
